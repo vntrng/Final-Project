@@ -50,3 +50,32 @@ contourfm(lat,lon,temperature')
 scatterm()
 colorbar()
 
+%% Global_Coral_Bleaching Database
+%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+filename = 'Global_Coral_Bleaching_Database.csv';
+stationdata = readtable(filename);
+
+lat = table2array(stationdata(:,5));
+lon = table2array(stationdata(:,6));
+comments = table2array(stationdata(:,16));
+%%
+figure(1);clf
+worldmap World
+load coastlines
+plotm(lat,lon,'m.','MarkerSize',10);
+geoshow('landareas.shp','FaceColor','white')
+title('Location for Coral Reef Bleaching')
+%%
+%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
+rows = find(contains(comments,'N/A'));
+
+goodIndices = setdiff(1:35053, rows);
+cleanedcomments = comments(goodIndices, :);
+cleanedlat = lat(goodIndices,:);
+cleanedlon = lon(goodIndices,:);
+figure(2); clf
+worldmap world
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+geoshow('landareas.shp','FaceColor','white')
+title('Location for Coral Reef Bleaching')
+
