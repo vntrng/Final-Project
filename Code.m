@@ -1,30 +1,50 @@
+%spots = readtable('spots.csv');
 
-load('C:\Users\woods\EnvDataExp\PartnerInfo\Final Project\GLODAPv2.2023_Merged_Master_File.mat')
-
-lat = G2latitude(:,:);
-lon = G2longitude(:,:);
-
-year = G2year(:,:);
-hour = G2hour(:,:);
-minutes = G2minute(:,:);
-month = G2month(:,:);
-day = G2day(:,:);
-
-pH = G2phts25p0f(:,:);
-
-temperature = G2temperature(:,:);
-
-%variables = table('temperature', 'year', 'month', 'minutues')
+addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
 
 
-%Attempting to make the time in a format that matlab can read
-dates = {};
 
-for i = 1:length(year)
-    
-    dates{i} = datetime(year(i,:),month(i,:),day(i,:),hour(i,:),minutes(i,:),0,0);
-    
+
+
+file = 'spots.csv'
+data = readtable(file)
+
+
+
+
+site = table2array(data(:,1));
+ph = table2array(data(:,62));
+lat = table2array(data(:,8));
+lon = table2array(data(:,9));
+pressure = table2array(data(:,10))
+
+surfacepressureind = find(pressure<= 10)
+
+
+ind = find(ph ~= -999)
+
+pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
+%8.744402, -172.731079
+
+%30.119914, -142.660725
+
+latitudes = find(lat>=20 & lat <= 25);
+longitudes = find(lon>= -160 & lon <= -150);
+
+%inds = pH_insitu(latitudes,:)
+
+surfacepressure = []
+
+
+for i = 1:length(surfacepressureind)
+    if surfacepressureind(i,1) <= 86706;
+        surfacepressure(i) = surfacepressureind(i);
+       
+
+    end
 end
+
+inds = pH_insitu(surfacepressure',:);
 
 %%
 addpath("C:\Users\woods\Downloads")
