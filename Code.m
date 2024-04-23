@@ -54,27 +54,6 @@ filename1 = 'hawaii_d90f_20ee_c4cb_e8d8_79ca_4468.nc';
 %-->
 ncdisp(filename1)
 
-%% Global_Coral_Bleaching Database
-%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
-filename = 'Global_Coral_Bleaching_Database.csv';
-stationdata = readtable(filename);
-
-lat = table2array(stationdata(:,5));
-lon = table2array(stationdata(:,6));
-comments = table2array(stationdata(:,16));
-
-%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
-rows = find(contains(comments,'N/A'));
-
-goodIndices = setdiff(1:35053, rows);
-cleanedcomments = comments(goodIndices, :);
-cleanedlat = lat(goodIndices,:);
-cleanedlon = lon(goodIndices,:);
-figure(2); clf
-worldmap world
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
-geoshow('landareas.shp','FaceColor','white')
-title('Location for Coral Reef Bleaching')
 
 %%
 filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc'
@@ -197,36 +176,90 @@ legend() % Add a legend to identify the lines'
 hold off;
 
 
-
-%% Global_Coral_Bleaching Database
-%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
-addpath("C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\")
-filename = 'Global_Coral_Bleaching_Database.csv';
-stationdata = readtable(filename);
-
-lat = table2array(stationdata(:,5));
-lon = table2array(stationdata(:,6));
-
-
-
-%% Global_Coral_Bleaching Database
-%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+%% Global_Coral_Bleaching_Database
+addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
 filename = 'Global_Coral_Bleaching_Database.csv';
 stationdata = readtable(filename);
 
 lat = table2array(stationdata(:,5));
 lon = table2array(stationdata(:,6));
 comments = table2array(stationdata(:,16));
-
-%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
-rows = find(contains(comments,'N/A'));
-
-goodIndices = setdiff(1:35053, rows);
-cleanedcomments = comments(goodIndices, :);
-cleanedlat = lat(goodIndices,:);
-cleanedlon = lon(goodIndices,:);
-figure(2); clf
-worldmap world
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+precent_bleached = table2array(stationdata(:,11));
+%% Raw Data map
+figure(1);clf
+worldmap World
+load coastlines
+plotm(lat,lon,'m.','MarkerSize',10);
 geoshow('landareas.shp','FaceColor','white')
 title('Location for Coral Reef Bleaching')
+%% Cleaned up Data map
+rows = find(contains(precent_bleached,'N/A')|contains(precent_bleached,'>')|contains(precent_bleached,'<')|contains(precent_bleached,'%')|contains(precent_bleached,'0')|contains(precent_bleached,'-'));
+
+goodIndices = setdiff(1:35053, rows);
+
+cleaned_precent = precent_bleached(goodIndices, :);
+
+clean_precent_array = NaN(1,length(cleaned_precent));
+for i = 1:length(cleaned_precent)
+    clean_precent_array(i) = str2double(cell2mat(cleaned_precent(i)));
+end
+
+cleanedlat = lat(goodIndices,:);
+cleanedlon = lon(goodIndices,:);
+
+figure(2); clf
+worldmap world
+load coastlines
+plotm(coastlat,coastlon)
+scatterm(cleanedlat,cleanedlon,50,clean_precent_array','filled','MarkerEdgeColor','k')
+c = colorbar;
+c.Title.String = 'precent_bleached(%)';
+title('Location for Coral Reef Bleaching')
+
+%% Location of most and least coral bleaching
+
+max_region = max(clean_precent_array);
+index_max = find(clean_precent_array == max_region);
+lan_max = cleanedlat(index_max);
+lon_max = cleanedlon(index_max);
+
+%[rows,col] = find(clean_precent_array(1,:) = max_region);
+
+%median_region = median(clean_precent_array);
+
+min_region = min(clean_precent_array);
+index_min = find(clean_precent_array == min_region);
+%lower_lon = find(lon_min(index_min) < 0);
+
+lan_min = cleanedlat(1597);
+lon_min = cleanedlon(1597);
+%1597
+
+
+index_mid = find(min(abs(clean_precent_array - 50)));
+lan_mid = cleanedlat(index_mid);
+lon_mid = cleanedlon(index_mid);
+
+index_aus = find(clean_precent_array == 51.52824717);
+lan_aus = cleanedlat(index_aus);
+lon_aus = cleanedlon(index_aus);
+
+
+examine_regions = [max_region; min_region; clean_precent_array(index_aus)];
+examine_lan = [lan_max;lan_min;lan_aus];
+examine_lon = [lon_max;lon_min;lon_aus];
+
+figure(3); clf
+worldmap world
+load coastlines
+plotm(coastlat,coastlon)
+scatterm(examine_lan,examine_lon,100,examine_regions,'filled','MarkerEdgeColor','k')
+
+c = colorbar;
+c.Title.String = 'precent_bleached(%)';
+title('Location for Coral Reef Bleaching')
+
+
+
+
+
