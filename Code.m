@@ -33,11 +33,29 @@ filename1 = 'hawaii_d90f_20ee_c4cb_e8d8_79ca_4468.nc';
 %1a. Use the function "ncdisp" to display information about the data contained in this file
 %-->
 ncdisp(filename1)
-%%
-addpath("C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\")
 
-filename2 = 'ct5km_baa-max-7d_v3.1_19850331.nc'
-ncdisp(filename2)
+%% Global_Coral_Bleaching Database
+%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+filename = 'Global_Coral_Bleaching_Database.csv';
+stationdata = readtable(filename);
+
+lat = table2array(stationdata(:,5));
+lon = table2array(stationdata(:,6));
+comments = table2array(stationdata(:,16));
+
+%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
+rows = find(contains(comments,'N/A'));
+
+goodIndices = setdiff(1:35053, rows);
+cleanedcomments = comments(goodIndices, :);
+cleanedlat = lat(goodIndices,:);
+cleanedlon = lon(goodIndices,:);
+figure(2); clf
+worldmap world
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+geoshow('landareas.shp','FaceColor','white')
+title('Location for Coral Reef Bleaching')
+
 %%
 filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc'
 
@@ -51,7 +69,7 @@ lon2 = ncread(filename3, 'longitude');
 lat2 = double(lat2);
 lon2 = double(lon2);
 mask2 = ncread(filename3, 'mask'); % Read the land-sea mask
-mask_slice = mask(:,:,1); 
+mask_slice = mask2(:,:,1); 
 
 time2 = ncread(filename3, 'time');
 time3 = datetime(time2, 'ConvertFrom', 'posixtime');
@@ -71,6 +89,9 @@ pcolorm(lat2, lon2, mean_ssta'); % Plot mean SST anomaly
 cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Global Mean Sea Surface Temperature Anomaly 1985-Present');
+hold on
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+hold off
 
 % Calculate mean SST across time
 mean_sst = mean(sst2, 3);
@@ -83,7 +104,9 @@ pcolorm(lat2, lon2, mean_sst'); % Plot mean SST
 cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Average Sea Surface Temperature 1985-Present');
-
+hold on
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+hold off
 
 
 [lon_size, lat_size, ~] = size(sst2);
@@ -110,6 +133,9 @@ plotm(coastlat, coastlon, 'k'); % Plot coastlines
 pcolorm(lat2, lon2, rate_of_change'); % Plot rate of change
 colorbar; % Add colorbar
 title('Rate of Change of Sea Surface Temperature');
+hold on
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+hold off
 
 % Find the nearest grid point
 [~,lat_idx] = min(abs(lat2 - target_lat));
@@ -151,21 +177,6 @@ legend() % Add a legend to identify the lines'
 hold off;
 
 
-%%
-latty = ncread(filename1,'latitude');
-lonny = ncread(filename1,'longitude');
-
-temperature = ncread(filename1,'temp');
-
-figure()
-worldmap('World')
-load coastlines
-geoshow('landareas.shp','FaceColor','white')
-contourfm(latty,lonny,temperature')
-
-colorbar()
-hold on
-
 
 %% Global_Coral_Bleaching Database
 %addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
@@ -175,30 +186,27 @@ stationdata = readtable(filename);
 
 lat = table2array(stationdata(:,5));
 lon = table2array(stationdata(:,6));
-comments = table2array(stationdata(:,16));
 
 
-%%
-%figure(1);clf
-plotm(lat,lon,'m.','MarkerSize',10);
-title('Location for Coral Reef Bleaching')
 
-
-%%
-
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
-geoshow('landareas.shp','FaceColor','white')
-title('Location for Coral Reef Bleaching')
-%%
-
-% Plot additional data from Global_Coral_Bleaching Database
+%% Global_Coral_Bleaching Database
+%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
 filename = 'Global_Coral_Bleaching_Database.csv';
 stationdata = readtable(filename);
 
-lat = table2array(stationdata(:, 5));
-lon = table2array(stationdata(:, 6));
+lat = table2array(stationdata(:,5));
+lon = table2array(stationdata(:,6));
+comments = table2array(stationdata(:,16));
 
-plotm(lat, lon, 'm.', 'MarkerSize', 10);
-geoshow('landareas.shp', 'FaceColor', 'white')
+%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
+rows = find(contains(comments,'N/A'));
+
+goodIndices = setdiff(1:35053, rows);
+cleanedcomments = comments(goodIndices, :);
+cleanedlat = lat(goodIndices,:);
+cleanedlon = lon(goodIndices,:);
+figure(2); clf
+worldmap world
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+geoshow('landareas.shp','FaceColor','white')
 title('Location for Coral Reef Bleaching')
-
