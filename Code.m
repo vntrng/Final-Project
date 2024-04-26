@@ -80,9 +80,14 @@ ncdisp(filename1)
 %%
 filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc'
 
-target_lat = 42.171949, % Replace with your desired latitude
-target_lon = -68.261707; % Replace with your desired longitude
-
+%target_lat = 8.6167, % Replace with your desired latitude
+%target_lon = -79.050; % Replace with your desired longitude
+%target_lat = 12.6244
+target_lon = -61.3506
+target_lat = 24.2282, % Replace with your desired latitude
+%target_lon = 123.9218; 
+cleanedlat = [8.6167,24.2282,12.6244]
+cleanedlon = [-79.050,123.9218,-61.3506]
 
 ncdisp(filename3)
 lat2 = ncread(filename3, 'latitude');
@@ -111,7 +116,7 @@ cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Global Mean Sea Surface Temperature Anomaly 1985-Present');
 hold on
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',20);
 hold off
 
 % Calculate mean SST across time
@@ -126,7 +131,7 @@ cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Average Sea Surface Temperature 1985-Present');
 hold on
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',20);
 hold off
 
 
@@ -155,12 +160,12 @@ pcolorm(lat2, lon2, rate_of_change'); % Plot rate of change
 colorbar; % Add colorbar
 title('Rate of Change of Sea Surface Temperature');
 hold on
-plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',20);
 hold off
 
 % Find the nearest grid point
-[~,lat_idx] = min(abs(lat2 - target_lat));
-[~,lon_idx] = min(abs(lon2 - target_lon));
+[~,lat_idx] = min(abs(target_lat-lat2));
+[~,lon_idx] = min(abs(target_lon-lon2));
 
 sst_target_data = sst2(lon_idx, lat_idx,:)
 sst_target_data = squeeze(sst_target_data)
