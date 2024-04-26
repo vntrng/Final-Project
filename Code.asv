@@ -17,13 +17,11 @@ ph = table2array(data(:,62));
 lat = table2array(data(:,8));
 lon = table2array(data(:,9));
 pressure = table2array(data(:,10))
-
+date = table2array(data(:,6))
 surfacepressureind = find(pressure<= 10)
 
 
-ind = find(ph ~= -999)
-
-pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
+%pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
 %8.744402, -172.731079
 
 %30.119914, -142.660725
@@ -43,8 +41,30 @@ for i = 1:length(surfacepressureind)
 
     end
 end
+inds = surfacepressure'
 
-inds = pH_insitu(surfacepressure',:);
+%inds = intersect(latitudes(:,1),surfacepressure(:,1))
+
+%inds = pH_insitu(surfacepressure',:);
+
+ind = find(ph ~= -999)
+
+inds2 = intersect(ind(:,1),inds(:,1))
+
+%pH_measures = ph(inds2,1)
+
+pH_insitu = CO2SYS(data.PH_TOT(inds2,1), data.TCARBN(inds2,1), 3, 2, data.CTDSAL(inds2,1), data.PH_TMP(inds2,1), data.CTDTMP(inds2,1), 0, data.CTDPRS(inds2,1), 0, 0, 1, 10, 1);
+
+ph_output = pH_insitu(:,38)
+x = date(inds2,1)
+p = polyfit(x,ph_output,1)
+trendline = polyval(p,x);
+
+figure;
+
+plot(x, ph_output, 'DisplayName', 'SSTA');
+hold on
+plot(x,trendline,'DIsplayName','Trendline')
 
 %%
 addpath("C:\Users\woods\Downloads")
@@ -177,7 +197,9 @@ hold off;
 
 
 %% Global_Coral_Bleaching_Database
-addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
+
 filename = 'Global_Coral_Bleaching_Database.csv';
 stationdata = readtable(filename);
 
@@ -192,12 +214,11 @@ load coastlines
 plotm(lat,lon,'m.','MarkerSize',10);
 geoshow('landareas.shp','FaceColor','white')
 title('Location for Coral Reef Bleaching')
-%%
-%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
+%% Cleaned up Data map
 rows = find(contains(precent_bleached,'N/A')|contains(precent_bleached,'>')|contains(precent_bleached,'<')|contains(precent_bleached,'%')|contains(precent_bleached,'0')|contains(precent_bleached,'-'));
 
 goodIndices = setdiff(1:35053, rows);
-%cleanedcomments = comments(goodIndices, :);
+
 cleaned_precent = precent_bleached(goodIndices, :);
 
 clean_precent_array = NaN(1,length(cleaned_precent));
@@ -205,8 +226,6 @@ for i = 1:length(cleaned_precent)
     clean_precent_array(i) = str2double(cell2mat(cleaned_precent(i)));
 end
 
-
-%array_precent = str2double(cell2mat(cleaned_precent));
 cleanedlat = lat(goodIndices,:);
 cleanedlon = lon(goodIndices,:);
 
@@ -214,11 +233,7 @@ figure(2); clf
 worldmap world
 load coastlines
 plotm(coastlat,coastlon)
-
-%plotm(cleanedlat,cleanedlon,cleaned_precent(:,1),'MarkerSize',10);
 scatterm(cleanedlat,cleanedlon,50,clean_precent_array','filled','MarkerEdgeColor','k')
-
-%geoshow('landareas.shp','FaceColor','white')
 c = colorbar;
 c.Title.String = 'precent_bleached(%)';
 title('Location for Coral Reef Bleaching')

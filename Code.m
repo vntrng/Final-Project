@@ -17,13 +17,11 @@ ph = table2array(data(:,62));
 lat = table2array(data(:,8));
 lon = table2array(data(:,9));
 pressure = table2array(data(:,10))
-
+date = table2array(data(:,6))
 surfacepressureind = find(pressure<= 10)
 
 
-ind = find(ph ~= -999)
-
-pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
+%pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
 %8.744402, -172.731079
 
 %30.119914, -142.660725
@@ -43,8 +41,32 @@ for i = 1:length(surfacepressureind)
 
     end
 end
+inds = surfacepressure'
 
-inds = pH_insitu(surfacepressure',:);
+%inds = intersect(latitudes(:,1),surfacepressure(:,1))
+
+%inds = pH_insitu(surfacepressure',:);
+
+ind = find(ph ~= -999)
+
+inds2 = intersect(ind(:,1),inds(:,1))
+
+%pH_measures = ph(inds2,1)
+
+pH_insitu = CO2SYS(data.PH_TOT(inds2,1), data.TCARBN(inds2,1), 3, 2, data.CTDSAL(inds2,1), data.PH_TMP(inds2,1), data.CTDTMP(inds2,1), 0, data.CTDPRS(inds2,1), 0, 0, 1, 10, 1);
+
+ph_output = pH_insitu(:,38)
+x = date(inds2,1)
+p = polyfit(x,ph_output,1)
+slope = p(1) % Slope of the line
+
+trendline = polyval(p,x);
+
+figure;
+
+plot(x, ph_output, 'DisplayName', 'SSTA');
+hold on
+plot(x,trendline,'DIsplayName','Trendline')
 
 %%
 addpath("C:\Users\woods\Downloads")
@@ -177,7 +199,9 @@ hold off;
 
 
 %% Global_Coral_Bleaching_Database
-addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
+
 filename = 'Global_Coral_Bleaching_Database.csv';
 stationdata = readtable(filename);
 
