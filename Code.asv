@@ -7,7 +7,7 @@ addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
 
 
 file = 'spots.csv'
-data = readtable(file)
+data = readtable(file);
 
 
 
@@ -16,9 +16,9 @@ site = table2array(data(:,1));
 ph = table2array(data(:,62));
 lat = table2array(data(:,8));
 lon = table2array(data(:,9));
-pressure = table2array(data(:,10))
-date = table2array(data(:,6))
-surfacepressureind = find(pressure<= 10)
+pressure = table2array(data(:,10));
+date = table2array(data(:,6));
+surfacepressureind = find(pressure<= 10);
 
 
 %pH_insitu = CO2SYS(data.PH_TOT(1:86706,:), data.TCARBN(1:86706,:), 3, 2, data.CTDSAL(1:86706,:), data.PH_TMP(1:86706,:), data.CTDTMP(1:86706,:), 0, data.CTDPRS(1:86706,:), 0, 0, 1, 10, 1);
@@ -26,47 +26,100 @@ surfacepressureind = find(pressure<= 10)
 
 %30.119914, -142.660725
 
-latitudes = find(lat>=20 & lat <= 25);
-longitudes = find(lon>= -160 & lon <= -150);
+%latitudes = find(lat>=20 & lat <= 25);
+%longitudes = find(lon>= -160 & lon <= -150);
 
+latitudes = find(lat>=-50 & lat <= -40);
+longitudes = find(lon>= 165 & lon <= 175);
 %inds = pH_insitu(latitudes,:)
 
-surfacepressure = []
+surfacepressure = [];
 
 
-for i = 1:length(surfacepressureind)
-    if surfacepressureind(i,1) <= 86706;
+for i = 1:length(surfacepressureind);
+    if surfacepressureind(i,1) <= 104915 ;
+        %if surfacepressureind(i,1) >= 86707;
+        if surfacepressureind(i,1) >= 104595;
         surfacepressure(i) = surfacepressureind(i);
-       
+        end
 
     end
 end
-inds = surfacepressure'
+inds = surfacepressure';
 
 %inds = intersect(latitudes(:,1),surfacepressure(:,1))
 
 %inds = pH_insitu(surfacepressure',:);
 
-ind = find(ph ~= -999)
+ind = find(ph ~= -999);
 
-inds2 = intersect(ind(:,1),inds(:,1))
+inds2 = intersect(ind(:,1),inds(:,1));
 
 %pH_measures = ph(inds2,1)
 
 pH_insitu = CO2SYS(data.PH_TOT(inds2,1), data.TCARBN(inds2,1), 3, 2, data.CTDSAL(inds2,1), data.PH_TMP(inds2,1), data.CTDTMP(inds2,1), 0, data.CTDPRS(inds2,1), 0, 0, 1, 10, 1);
 
-ph_output = pH_insitu(:,38)
-x = date(inds2,1)
-p = polyfit(x,ph_output,1)
+ph_output = pH_insitu(:,38);
+x = date(inds2,1);
+p = polyfit(x,ph_output,1);
 slope = p(1) % Slope of the line
 
 trendline = polyval(p,x);
 
 figure;
 
-plot(x, ph_output, 'DisplayName', 'SSTA');
+x = arrayfun(@num2str, x, 'UniformOutput', false);
+x = datetime(x, 'InputFormat', 'yyyyMMdd');
+
+plot(x, ph_output,'r', 'DisplayName', 'Hawaii pH');
 hold on
-plot(x,trendline,'DIsplayName','Trendline')
+plot(x,trendline,'r--','DisplayName','Hawaii Trendline')
+hold on
+
+%%
+latitudes2 = find(lat>=0 & lat <= 20);
+longitudes2 = find(lon>= -70 & lon <= -60);
+
+%inds = pH_insitu(latitudes,:)
+
+surfacepressure2 = [];
+
+
+for i = 1:length(surfacepressureind)
+    if surfacepressureind(i,1) <= 90982 
+        if surfacepressureind(i,1) >= 86707;
+        surfacepressure(i) = surfacepressureind(i);
+        end
+       
+
+    end
+end
+inds3 = surfacepressure';
+inds4 = intersect(ind(:,1),inds3(:,1));
+pH_insitu = CO2SYS(data.PH_TOT(inds4,1), data.TCARBN(inds4,1), 3, 2, data.CTDSAL(inds4,1), data.PH_TMP(inds4,1), data.CTDTMP(inds4,1), 0, data.CTDPRS(inds4,1), 0, 0, 1, 10, 1);
+ph_output1 = pH_insitu(:,38);
+ph_output1 = real(ph_output1);
+x2 = date(inds4,1);
+p2 = polyfit(x2,ph_output1,1);
+slope = p2(1) % Slope of the line
+
+trendline2 = polyval(p2,x2);
+
+x2 = arrayfun(@num2str, x2, 'UniformOutput', false);
+x2 = datetime(x2, 'InputFormat', 'yyyyMMdd');
+
+plot(x2, ph_output1,'b', 'DisplayName', 'Carribean pH');
+hold on
+plot(x2,trendline2,'b--','DisplayName', 'Carribean Trendline')
+hold on
+xlabel('Date');
+ylabel('pH');
+title('pH Levels Over Time');
+legend('show'); % show legend with DisplayName labels
+grid on; % enable grid
+hold off
+
+
 
 %%
 addpath("C:\Users\woods\Downloads")
@@ -82,11 +135,12 @@ filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc'
 
 %target_lat = 8.6167, % Replace with your desired latitude
 %target_lon = -79.050; % Replace with your desired longitude
-%target_lat = -19.197476
-%target_lon = 146.815
-%target_lat = 24.2282, % Replace with your desired latitude
+%target_lat = 12.6244
+target_lon = -61.3506
+target_lat = 24.2282, % Replace with your desired latitude
 %target_lon = 123.9218; 
-lats = 
+cleanedlat = [8.6167,24.2282,12.6244]
+cleanedlon = [-79.050,123.9218,-61.3506]
 
 ncdisp(filename3)
 lat2 = ncread(filename3, 'latitude');
@@ -115,7 +169,7 @@ cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Global Mean Sea Surface Temperature Anomaly 1985-Present');
 hold on
-%plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',20);
 hold off
 
 % Calculate mean SST across time
@@ -130,7 +184,7 @@ cb = colorbar; % Create colorbar
 cb.Label.String = 'Temperature (°C)'; % Add units to the colorbar label
 title('Average Sea Surface Temperature 1985-Present');
 hold on
-%plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',20);
 hold off
 
 
@@ -159,7 +213,7 @@ pcolorm(lat2, lon2, rate_of_change'); % Plot rate of change
 colorbar; % Add colorbar
 title('Rate of Change of Sea Surface Temperature');
 hold on
-%plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
+plotm(cleanedlat,cleanedlon,'m.','MarkerSize',10);
 hold off
 
 % Find the nearest grid point
