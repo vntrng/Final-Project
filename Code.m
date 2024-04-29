@@ -2,6 +2,7 @@
 
 addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
 
+<<<<<<< HEAD
 
 
 
@@ -10,6 +11,10 @@ file = 'spots.csv'
 data = readtable(file);
 
 
+=======
+file = 'spots.csv';
+data = readtable(file);
+>>>>>>> 647c469ed6e9cf9da6f31ca4c736731562810915
 
 
 site = table2array(data(:,1));
@@ -41,8 +46,12 @@ for i = 1:length(surfacepressureind);
     if surfacepressureind(i,1) >= 86707;
         %if surfacepressureind(i,1) >= 104595;
         surfacepressure(i) = surfacepressureind(i);
+<<<<<<< HEAD
         %end
 
+=======
+       
+>>>>>>> 647c469ed6e9cf9da6f31ca4c736731562810915
     end
 end
 inds = surfacepressure';
@@ -62,7 +71,11 @@ pH_insitu = CO2SYS(data.PH_TOT(inds2,1), data.TCARBN(inds2,1), 3, 2, data.CTDSAL
 ph_output = pH_insitu(:,38);
 x = date(inds2,1);
 p = polyfit(x,ph_output,1);
+<<<<<<< HEAD
 slope = p(1) % Slope of the line
+=======
+slope = p(1); % Slope of the line
+>>>>>>> 647c469ed6e9cf9da6f31ca4c736731562810915
 
 trendline = polyval(p,x);
 
@@ -134,16 +147,16 @@ ncdisp(filename1)
 
 
 %%
-filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc'
+filename3 = 'NOAA_DHW_monthly_1a19_b145_a3b0_U1713885190139.nc';
 
 %target_lat = 8.6167, % Replace with your desired latitude
 %target_lon = -79.050; % Replace with your desired longitude
 %target_lat = 12.6244
-target_lon = -61.3506
-target_lat = 24.2282, % Replace with your desired latitude
+target_lon = -61.3506;
+target_lat = 24.2282; % Replace with your desired latitude
 %target_lon = 123.9218; 
-cleanedlat = [8.6167,24.2282,12.6244]
-cleanedlon = [-79.050,123.9218,-61.3506]
+cleanedlat = [8.6167,24.2282,12.6244];
+cleanedlon = [-79.050,123.9218,-61.3506];
 
 ncdisp(filename3)
 lat2 = ncread(filename3, 'latitude');
@@ -223,23 +236,23 @@ hold off
 [~,lat_idx] = min(abs(target_lat-lat2));
 [~,lon_idx] = min(abs(target_lon-lon2));
 
-sst_target_data = sst2(lon_idx, lat_idx,:)
-sst_target_data = squeeze(sst_target_data)
-ssta_target_data = ssta2(lon_idx, lat_idx,:)
-ssta_target_data = squeeze(ssta_target_data)
+sst_target_data = sst2(lon_idx, lat_idx,:);
+sst_target_data = squeeze(sst_target_data);
+ssta_target_data = ssta2(lon_idx, lat_idx,:);
+ssta_target_data = squeeze(ssta_target_data);
 
 figure;
 plot(time3, sst_target_data, 'b-', 'DisplayName', 'SST'); % Blue line for SST
 
-x = datenum(time3)
+x = datenum(time3);
 
-p = polyfit(x,sst_target_data,1)
+p = polyfit(x,sst_target_data,1);
 
-trendlinesst = polyval(p,x)
+trendlinesst = polyval(p,x);
 
 hold on;
 plot(time3, trendlinesst, '-', 'DisplayName', 'SST Trendline'); % Plot the trendline
-slope_SST = p(1) % Slope of the line
+slope_SST = p(1); % Slope of the line
 
 hold on;
 plot(time3, ssta_target_data, 'r--', 'DisplayName', 'SSTA'); % Red dashed line for SSTA
@@ -250,7 +263,7 @@ trendlinessta = polyval(p2,x);
 
 hold on;
 plot(time3, trendlinessta, '-', 'DisplayName', 'SST Anomaly Trendline'); % Plot the trendline
-slope_SSTA = p(1) % Slope of the line
+slope_SSTA = p(1); % Slope of the line
 
 xlabel('Time');
 ylabel('Temperature (°C)');
@@ -260,9 +273,8 @@ hold off;
 
 
 %% Global_Coral_Bleaching_Database
-%addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
-addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
-
+addpath('/Users/amyz/Documents/Data Exploration/Final-Project/')
+%addpath('C:\Users\woods\EnvDataExp\PartnerInfo\Final-Project\')
 filename = 'Global_Coral_Bleaching_Database.csv';
 stationdata = readtable(filename);
 
@@ -270,18 +282,19 @@ lat = table2array(stationdata(:,5));
 lon = table2array(stationdata(:,6));
 comments = table2array(stationdata(:,16));
 precent_bleached = table2array(stationdata(:,11));
-%% Raw Data map
+%% Raw Data
 figure(1);clf
 worldmap World
 load coastlines
 plotm(lat,lon,'m.','MarkerSize',10);
 geoshow('landareas.shp','FaceColor','white')
 title('Location for Coral Reef Bleaching')
-%% Cleaned up Data map
+%% Cleaned Data
+%row_has_NA = any(strcmp(comments(:,1), 'N/A'));
 rows = find(contains(precent_bleached,'N/A')|contains(precent_bleached,'>')|contains(precent_bleached,'<')|contains(precent_bleached,'%')|contains(precent_bleached,'0')|contains(precent_bleached,'-'));
 
 goodIndices = setdiff(1:35053, rows);
-
+%cleanedcomments = comments(goodIndices, :);
 cleaned_precent = precent_bleached(goodIndices, :);
 
 clean_precent_array = NaN(1,length(cleaned_precent));
@@ -289,6 +302,7 @@ for i = 1:length(cleaned_precent)
     clean_precent_array(i) = str2double(cell2mat(cleaned_precent(i)));
 end
 
+%array_precent = str2double(cell2mat(cleaned_precent));
 cleanedlat = lat(goodIndices,:);
 cleanedlon = lon(goodIndices,:);
 
@@ -296,21 +310,32 @@ figure(2); clf
 worldmap world
 load coastlines
 plotm(coastlat,coastlon)
+
+%plotm(cleanedlat,cleanedlon,cleaned_precent(:,1),'MarkerSize',10);
 scatterm(cleanedlat,cleanedlon,50,clean_precent_array','filled','MarkerEdgeColor','k')
+
+%geoshow('landareas.shp','FaceColor','white')
 c = colorbar;
-c.Title.String = 'precent_bleached(%)';
+c.Title.String = '% bleached';
 title('Location for Coral Reef Bleaching')
 
-%% Location of most and least coral bleaching
+%% pie chart
+rows_25 = find(clean_precent_array < 25);
+rows_50 = find(clean_precent_array > 25 & clean_precent_array <= 50);
+rows_75 = find(clean_precent_array > 50 & clean_precent_array <= 75);
+rows_100 = find(clean_precent_array > 75 & clean_precent_array <= 100);
+size_pie = [length(rows_25)/length(clean_precent_array)*100, length(rows_50)/length(clean_precent_array)*100,length(rows_75)/length(clean_precent_array)*100,length(rows_100)/length(clean_precent_array)*100];
+labels_pie = {'25%', '50%', '75%', '100%'};
+figure(4),clf
+pie(size_pie, labels_pie);
+title('% of Coral Bleech Pie Chart');
 
+%% Location of most and least coral bleaching
 max_region = max(clean_precent_array);
 index_max = find(clean_precent_array == max_region);
 lan_max = cleanedlat(index_max);
 lon_max = cleanedlon(index_max);
 
-%[rows,col] = find(clean_precent_array(1,:) = max_region);
-
-%median_region = median(clean_precent_array);
 
 min_region = min(clean_precent_array);
 index_min = find(clean_precent_array == min_region);
@@ -320,7 +345,6 @@ lan_min = cleanedlat(1597);
 lon_min = cleanedlon(1597);
 %1597
 
-
 index_mid = find(min(abs(clean_precent_array - 50)));
 lan_mid = cleanedlat(index_mid);
 lon_mid = cleanedlon(index_mid);
@@ -329,10 +353,9 @@ index_aus = find(clean_precent_array == 51.52824717);
 lan_aus = cleanedlat(index_aus);
 lon_aus = cleanedlon(index_aus);
 
-
-examine_regions = [max_region; min_region; clean_precent_array(index_aus)];
-examine_lan = [lan_max;lan_min;lan_aus];
-examine_lon = [lon_max;lon_min;lon_aus];
+examine_regions = [max_region; min_region; clean_precent_array(index_mid)];
+examine_lan = [lan_max;lan_min;lan_mid];
+examine_lon = [lon_max;lon_min;lon_mid];
 
 figure(3); clf
 worldmap world
@@ -343,6 +366,9 @@ scatterm(examine_lan,examine_lon,100,examine_regions,'filled','MarkerEdgeColor',
 c = colorbar;
 c.Title.String = 'precent_bleached(%)';
 title('Location for Coral Reef Bleaching')
+
+
+
 
 
 
